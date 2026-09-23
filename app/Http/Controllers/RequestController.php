@@ -29,7 +29,7 @@ class RequestController extends Controller
             $dateFormated = 'Semua';
         }
 
-        $title = 'Rekap-Penjualan-Bakul-Gadget-Periode-'.$dateFormated.'-'.time();
+        $title = 'Rekap-Penjualan-delta-bagus-Periode-'.$dateFormated.'-'.time();
 
         $header = [
             'No', // a
@@ -55,7 +55,7 @@ class RequestController extends Controller
 
         $spreadsheet = new \PhpOffice\PhpSpreadsheet\Spreadsheet();
         $sheet = $spreadsheet->getActiveSheet();
-        $sheet->setCellValue('A1', 'Rekap Penjualan Bakul Gadget Periode '.$dateFormated);
+        $sheet->setCellValue('A1', 'Rekap Penjualan Delta Bagus Interior Periode '.$dateFormated);
         $sheet->getStyle('A1')->getAlignment()->setHorizontal('center');
         $sheet->mergeCells('A1:S1');
 

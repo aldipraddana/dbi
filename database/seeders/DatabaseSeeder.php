@@ -7,12 +7,6 @@ use App\Constants\UserMenuConstant;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 
-use const App\Constants\MENU_PRODUCT_MANAGEMENT;
-use const App\Constants\MENU_TENANT_MANAGEMENT;
-use const App\Constants\MENU_TRANSACTION_PAYMENT;
-use const App\Constants\MENU_TRANSACTION;
-use const App\Constants\MENU_USER_MANAGEMENT;
-
 class DatabaseSeeder extends Seeder
 {
     /**
@@ -24,7 +18,6 @@ class DatabaseSeeder extends Seeder
             ['name' => UserMenuConstant::MENU_USER_MANAGEMENT],
             ['name' => UserMenuConstant::MENU_PRODUCT_MANAGEMENT],
             ['name' => UserMenuConstant::MENU_TRANSACTION],
-            ['name' => UserMenuConstant::MENU_WIFI_TRANSACTION],
         ]);
 
     }

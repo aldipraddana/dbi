@@ -56,14 +56,14 @@
                         <b class="mb-2 text-md">Selamat Datang</b>
                     </div>
                     <div class="mb-4 lg:mb-6"></div>
-                    <p class="mb-2 text-[#706f6c] dark:text-[#A1A09A] pt-2">Di Delta Bagus Interior, Sistem informasi management produk dan pencatatan transaksi sewa Wifi</p>
+                    <p class="mb-2 text-[#706f6c] dark:text-[#A1A09A] pt-2">Di Sistem Keuangan Delta Bagus Interior, jalur untuk mengelola dan mencatat semua transaksi keuangan secara efektif dan efisien.</p>
                     <div class="mb-4 lg:mb-6"></div>
                     <a href="{{ url('/admin') }}" class="inline-block dark:bg-[#eeeeec] dark:border-[#eeeeec] dark:text-[#1C1C1A] dark:hover:bg-white dark:hover:border-white hover:bg-black hover:border-black px-5 py-1.5 bg-[#1b1b18] rounded-sm border border-black text-white text-sm leading-normal">
                         Login Sekarang
                     </a>
                 </div>
                 <div class="bg-[#fff2f2] dark:bg-[#1D0002] relative lg:-ml-px -mb-px lg:mb-0 rounded-t-lg lg:rounded-t-none lg:rounded-r-lg aspect-[335/376] lg:aspect-auto w-full lg:w-[438px] shrink-0 overflow-hidden">
-                    <img src="{{ asset('img/logo.jpeg') }}" alt="Image Description" class="object-cover w-full h-full">
+                    <img src="{{ asset('img/bg-landing-page.jpg') }}" alt="Image Description" class="object-cover w-full h-full">
                 </div>
             </main>
         </div>

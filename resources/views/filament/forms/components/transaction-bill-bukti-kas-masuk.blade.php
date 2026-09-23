@@ -50,12 +50,12 @@
             <tr>
                 <td class="bordered" style="vertical-align: middle;"><svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width="20" viewBox="0 0 48 48">
 <path fill="#f4511e" d="M36.683,43H11.317c-2.136,0-3.896-1.679-3.996-3.813l-1.272-27.14C6.022,11.477,6.477,11,7.048,11 h33.904c0.571,0,1.026,0.477,0.999,1.047l-1.272,27.14C40.579,41.321,38.819,43,36.683,43z"></path><path fill="#f4511e" d="M32.5,11.5h-2C30.5,7.364,27.584,4,24,4s-6.5,3.364-6.5,7.5h-2C15.5,6.262,19.313,2,24,2 S32.5,6.262,32.5,11.5z"></path><path fill="#fafafa" d="M24.248,25.688c-2.741-1.002-4.405-1.743-4.405-3.577c0-1.851,1.776-3.195,4.224-3.195 c1.685,0,3.159,0.66,3.888,1.052c0.124,0.067,0.474,0.277,0.672,0.41l0.13,0.087l0.958-1.558l-0.157-0.103 c-0.772-0.521-2.854-1.733-5.49-1.733c-3.459,0-6.067,2.166-6.067,5.039c0,3.257,2.983,4.347,5.615,5.309 c3.07,1.122,4.934,1.975,4.934,4.349c0,1.828-2.067,3.314-4.609,3.314c-2.864,0-5.326-2.105-5.349-2.125l-0.128-0.118l-1.046,1.542 l0.106,0.087c0.712,0.577,3.276,2.458,6.416,2.458c3.619,0,6.454-2.266,6.454-5.158C30.393,27.933,27.128,26.741,24.248,25.688z"></path>
-</svg><span> : <a href="https://id.shp.ee/nigC2Sf">bakulgadgetjogja.official</a></span></td>
+</svg><span> : <a href="https://id.shp.ee/nigC2Sf">deltabagusinterior.official</a></span></td>
                 <td class="bordered"><img src="{{ asset('img/instagram.png') }}" style ="width: 20px;" alt=""> : <a href="https://www.instagram.com/bakulgadget.jogja?igsh=MWhrZm5wbWFwNHF2NA==">bakulgadget.jogja</a></td>
             </tr>
             <tr>
-                <td><img src="{{ asset('img/tokopedia.png') }}" style="width:20px" alt=""> : <a href="https://tk.tokopedia.com/ZSD6f8r9s/">bakulgadgetofficial</a></td>
-                <td><img src="{{ asset('img/tiktok.png') }}" style="width:20px" alt=""> : <a href="https://www.tiktok.com/@bakulgadget.official?=ZS-906rbWKOu41&_r=1">bakulgadget.official</a></td>
+                <td><img src="{{ asset('img/tokopedia.png') }}" style="width:20px" alt=""> : <a href="https://tk.tokopedia.com/ZSD6f8r9s/">xx</a></td>
+                <td><img src="{{ asset('img/tiktok.png') }}" style="width:20px" alt=""> : <a href="https://www.tiktok.com/@bakulgadget.official?=ZS-906rbWKOu41&_r=1">xx.official</a></td>
             </tr>
             <tr>
                 <td colspan="2" class="bordered" style="text-align: center"><img src="{{ asset('img/wa.png') }}" style="width: 15px" alt=""> &nbsp;Marketing : <a href="https://wa.me/6289601990776">0896-0199-0776</a> &nbsp;&nbsp;<img src="{{ asset('img/wa.png') }}" style="width: 15px" alt=""> &nbsp;Sales : <a href="https://wa.me/6285183370498">0851-8337-0498</a></td>
