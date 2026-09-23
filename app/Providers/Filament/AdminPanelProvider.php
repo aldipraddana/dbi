@@ -54,6 +54,18 @@ class AdminPanelProvider extends PanelProvider
                 Authenticate::class,
             ])
             // ->spa()
-            ->sidebarCollapsibleOnDesktop();
+            ->sidebarCollapsibleOnDesktop()
+            ->renderHook('panels::styles.after', fn (): string => request()->is('admin/login')
+                ? <<<HTML
+                    <style>
+                        body.fi-body {
+                            background-image: url('/img/bg-login.jpg') !important;
+                            background-size: cover;
+                            background-position: center;
+                            background-repeat: no-repeat;
+                        }
+                    </style>
+                HTML
+                : '');
     }
 }
