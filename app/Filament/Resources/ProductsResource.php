@@ -5,7 +5,6 @@ namespace App\Filament\Resources;
 use App\Constants\UserMenuConstant;
 use App\Filament\Resources\ProductsResource\Pages;
 use App\Models\Products;
-use DesignTheBox\BarcodeField\Forms\Components\BarcodeInput;
 use Filament\Forms;
 use Filament\Forms\Components\Section;
 use Filament\Forms\Form;
@@ -40,11 +39,6 @@ class ProductsResource extends Resource
                             ->required()
                             ->label('Marketplace')
                             ->maxLength(255),
-                        // BarcodeInput::make('imei1')
-                        //     ->label('IMEI')
-                        //     ->type('code39')
-                        //     ->required()
-                        //     ->maxLength(255),
                         Forms\Components\TextInput::make('imei1')
                             ->label('IMEI')
                             ->visible(fn () => Auth::user()->isAdmin())

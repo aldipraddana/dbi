@@ -41,7 +41,7 @@
                     <img src="{{ asset('img/logo.jpeg') }}" alt="Logo" style="width: 100px">
                 </td>
                 <td style="text-align: center;border-left: 0;" colspan="2">
-                    <h3 style="text-align: center;font-size: 18px;">Bakul Gadget Jogja</h3>
+                    <h3 style="text-align: center;font-size: 18px;">Delta Bagus Interior</h3>
                 </td>
             </tr>
             <tr>

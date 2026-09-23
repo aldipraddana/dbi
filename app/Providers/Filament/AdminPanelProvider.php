@@ -28,7 +28,7 @@ class AdminPanelProvider extends PanelProvider
             ->id('admin')
             ->path('admin')
             ->login(Login::class)
-            ->brandName('Bakul Gadget Jogja')
+            ->brandName('Delta Bagus Interior')
             ->colors([
                 'primary' => Color::Stone,
             ])

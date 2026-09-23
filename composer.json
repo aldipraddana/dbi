@@ -11,7 +11,6 @@
     "require": {
         "php": "^8.4",
         "afatmustafa/blade-hugeicons": "^1.0",
-        "designthebox/barcode-field": "^0.0.6",
         "filament/filament": "^3.3",
         "laravel-lang/common": "^6.7",
         "laravel/framework": "^12.0",
