@@ -2,11 +2,10 @@
 
 namespace App\Policies;
 
-use App\Constants\UserMenuConstant;
-use App\Models\GmailAccounts;
+use App\Models\KategoriPengeluaran;
 use App\Models\User;
 
-class GmailAccountsPolicy
+class KategoriPengeluaranPolicy
 {
     /**
      * Determine whether the user can view any models.
@@ -19,7 +18,7 @@ class GmailAccountsPolicy
     /**
      * Determine whether the user can view the model.
      */
-    public function view(User $user, GmailAccounts $gmailAccounts): bool
+    public function view(User $user, KategoriPengeluaran $kategoriPengeluaran): bool
     {
         return $this->authorize($user);
     }
@@ -35,7 +34,7 @@ class GmailAccountsPolicy
     /**
      * Determine whether the user can update the model.
      */
-    public function update(User $user, GmailAccounts $gmailAccounts): bool
+    public function update(User $user, KategoriPengeluaran $kategoriPengeluaran): bool
     {
         return $this->authorize($user);
     }
@@ -43,7 +42,7 @@ class GmailAccountsPolicy
     /**
      * Determine whether the user can delete the model.
      */
-    public function delete(User $user, GmailAccounts $gmailAccounts): bool
+    public function delete(User $user, KategoriPengeluaran $kategoriPengeluaran): bool
     {
         return $this->authorize($user);
     }
@@ -51,7 +50,7 @@ class GmailAccountsPolicy
     /**
      * Determine whether the user can restore the model.
      */
-    public function restore(User $user, GmailAccounts $gmailAccounts): bool
+    public function restore(User $user, KategoriPengeluaran $kategoriPengeluaran): bool
     {
         return $this->authorize($user);
     }
@@ -59,16 +58,16 @@ class GmailAccountsPolicy
     /**
      * Determine whether the user can permanently delete the model.
      */
-    public function forceDelete(User $user, GmailAccounts $gmailAccounts): bool
+    public function forceDelete(User $user, KategoriPengeluaran $kategoriPengeluaran): bool
     {
         return $this->authorize($user);
     }
 
     /**
-     * Determine if the user have permission to access cash.
+     * Determine if the user have permission to access kategori pengeluaran.
      */
     protected function authorize(User $user): bool
     {
-        return $user->menus->contains(key: 'name', value: UserMenuConstant::MENU_GMAIL_ACCOUNTS);
+        return $user->isAdmin();
     }
 }

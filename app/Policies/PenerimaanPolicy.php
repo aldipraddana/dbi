@@ -3,10 +3,10 @@
 namespace App\Policies;
 
 use App\Constants\UserMenuConstant;
+use App\Models\Penerimaan;
 use App\Models\User;
-use App\Models\WifiCustomers;
 
-class WifiCustomersPolicy
+class PenerimaanPolicy
 {
     /**
      * Determine whether the user can view any models.
@@ -19,7 +19,7 @@ class WifiCustomersPolicy
     /**
      * Determine whether the user can view the model.
      */
-    public function view(User $user, WifiCustomers $wifiCustomers): bool
+    public function view(User $user, Penerimaan $penerimaan): bool
     {
         return $this->authorize($user);
     }
@@ -35,7 +35,7 @@ class WifiCustomersPolicy
     /**
      * Determine whether the user can update the model.
      */
-    public function update(User $user, WifiCustomers $wifiCustomers): bool
+    public function update(User $user, Penerimaan $penerimaan): bool
     {
         return $this->authorize($user);
     }
@@ -43,7 +43,7 @@ class WifiCustomersPolicy
     /**
      * Determine whether the user can delete the model.
      */
-    public function delete(User $user, WifiCustomers $wifiCustomers): bool
+    public function delete(User $user, Penerimaan $penerimaan): bool
     {
         return $this->authorize($user);
     }
@@ -51,24 +51,24 @@ class WifiCustomersPolicy
     /**
      * Determine whether the user can restore the model.
      */
-    public function restore(User $user, WifiCustomers $wifiCustomers): bool
+    public function restore(User $user, Penerimaan $penerimaan): bool
     {
-        return false;
+        return $this->authorize($user);
     }
 
     /**
      * Determine whether the user can permanently delete the model.
      */
-    public function forceDelete(User $user, WifiCustomers $wifiCustomers): bool
+    public function forceDelete(User $user, Penerimaan $penerimaan): bool
     {
-        return false;
+        return $this->authorize($user);
     }
 
     /**
-     * Determine if the user have permission to access cash.
+     * Determine if the user have permission to access Penerimaan.
      */
     protected function authorize(User $user): bool
     {
-        return $user->menus->contains(key: 'name', value: UserMenuConstant::MENU_WIFI_CUSTOMERS);
+        return $user->menus->contains(key: 'name', value: UserMenuConstant::MENU_PENERIMAAN);
     }
 }

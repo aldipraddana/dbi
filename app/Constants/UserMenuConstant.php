@@ -8,4 +8,6 @@ class UserMenuConstant
     public const MENU_PRODUCT_MANAGEMENT = "Produk";
     public const MENU_TRANSACTION = "Transaksi Produk";
     public const MENU_EXPENSE = "Pengeluaran";
+    public const MENU_PENERIMAAN = "Penerimaan";
+    public const MENU_LAPORAN_KEUANGAN = "Laporan Keuangan";
 }

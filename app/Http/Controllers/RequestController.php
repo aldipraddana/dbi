@@ -2,7 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\JenisLaporanEnum;
 use App\Models\Transactions;
+use App\Services\LaporanKeuangan\LaporanKeuanganService;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use PhpOffice\PhpSpreadsheet\Cell\DataType;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
@@ -396,6 +399,29 @@ class RequestController extends Controller
         $writer->save($filename);
 
         return response()->download($filename)->deleteFileAfterSend(true);  
+    }
+
+    public function printLaporanKeuangan(Request $request)
+    {
+        $validated = $request->validate([
+            'jenis' => 'required|string',
+            'tanggal_mulai' => 'required|date',
+            'tanggal_akhir' => 'required|date|after_or_equal:tanggal_mulai',
+        ]);
+
+        $jenisLaporan = JenisLaporanEnum::tryFrom($validated['jenis']);
+
+        if (!$jenisLaporan) {
+            abort(400, 'Jenis laporan tidak valid');
+        }
+
+        $tanggalMulai = Carbon::parse($validated['tanggal_mulai']);
+        $tanggalAkhir = Carbon::parse($validated['tanggal_akhir']);
+
+        $service = app(LaporanKeuanganService::class);
+        $headerData = $service->getHeaderData($jenisLaporan, $tanggalMulai, $tanggalAkhir);
+
+        return view('laporan-keuangan.print', $headerData);
     }
 
     public function import1()

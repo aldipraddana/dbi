@@ -3,10 +3,10 @@
 namespace App\Policies;
 
 use App\Constants\UserMenuConstant;
+use App\Models\Pengeluaran;
 use App\Models\User;
-use App\Models\WifiOrders;
 
-class WifiOrdersPolicy
+class PengeluaranPolicy
 {
     /**
      * Determine whether the user can view any models.
@@ -19,7 +19,7 @@ class WifiOrdersPolicy
     /**
      * Determine whether the user can view the model.
      */
-    public function view(User $user, WifiOrders $wifiOrders): bool
+    public function view(User $user, Pengeluaran $pengeluaran): bool
     {
         return $this->authorize($user);
     }
@@ -35,7 +35,7 @@ class WifiOrdersPolicy
     /**
      * Determine whether the user can update the model.
      */
-    public function update(User $user, WifiOrders $wifiOrders): bool
+    public function update(User $user, Pengeluaran $pengeluaran): bool
     {
         return $this->authorize($user);
     }
@@ -43,32 +43,32 @@ class WifiOrdersPolicy
     /**
      * Determine whether the user can delete the model.
      */
-    public function delete(User $user, WifiOrders $wifiOrders): bool
+    public function delete(User $user, Pengeluaran $pengeluaran): bool
     {
-        return false;
+        return $this->authorize($user);
     }
 
     /**
      * Determine whether the user can restore the model.
      */
-    public function restore(User $user, WifiOrders $wifiOrders): bool
+    public function restore(User $user, Pengeluaran $pengeluaran): bool
     {
-        return false;
+        return $this->authorize($user);
     }
 
     /**
      * Determine whether the user can permanently delete the model.
      */
-    public function forceDelete(User $user, WifiOrders $wifiOrders): bool
+    public function forceDelete(User $user, Pengeluaran $pengeluaran): bool
     {
-        return false;
+        return $this->authorize($user);
     }
 
     /**
-     * Determine if the user have permission to access cash.
+     * Determine if the user have permission to access Pengeluaran.
      */
     protected function authorize(User $user): bool
     {
-        return $user->menus->contains(key: 'name', value: UserMenuConstant::MENU_WIFI_TRANSACTION);
+        return $user->menus->contains(key: 'name', value: UserMenuConstant::MENU_EXPENSE);
     }
 }
