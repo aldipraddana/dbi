@@ -24,10 +24,11 @@ class DatabaseSeeder extends Seeder
             ['name' => UserMenuConstant::MENU_SUPPLIER],
             ['name' => UserMenuConstant::MENU_KARYAWAN],
             ['name' => UserMenuConstant::MENU_KENDARAAN],
+            ['name' => UserMenuConstant::MENU_PENGADAAN_STOCK],
+            ['name' => UserMenuConstant::MENU_PENGELUARAN_STOCK],
         ]);
 
         $this->call([
-            KategoriPengeluaranSeeder::class,
             ClientSeeder::class,
             SupplierSeeder::class,
             KaryawanSeeder::class,

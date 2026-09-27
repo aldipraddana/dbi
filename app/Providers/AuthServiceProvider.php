@@ -2,18 +2,28 @@
 
 namespace App\Providers;
 
+use App\Models\Client;
 use App\Models\KategoriPengeluaran;
+use App\Models\Karyawan;
+use App\Models\Kendaraan;
 use App\Models\LaporanKeuanganHistory;
 use App\Models\Penerimaan;
 use App\Models\Pengeluaran;
+use App\Models\PengeluaranStock;
 use App\Models\Products;
+use App\Models\Supplier;
 use App\Models\Transactions;
 use App\Models\User;
+use App\Policies\ClientPolicy;
 use App\Policies\KategoriPengeluaranPolicy;
+use App\Policies\KaryawanPolicy;
+use App\Policies\KendaraanPolicy;
 use App\Policies\LaporanKeuanganHistoryPolicy;
 use App\Policies\PenerimaanPolicy;
 use App\Policies\PengeluaranPolicy;
+use App\Policies\PengeluaranStockPolicy;
 use App\Policies\ProductsPolicy;
+use App\Policies\SupplierPolicy;
 use App\Policies\TransactionsPolicy;
 use App\Policies\UserPolicy;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
@@ -33,6 +43,11 @@ class AuthServiceProvider extends ServiceProvider
         Pengeluaran::class => PengeluaranPolicy::class,
         KategoriPengeluaran::class => KategoriPengeluaranPolicy::class,
         LaporanKeuanganHistory::class => LaporanKeuanganHistoryPolicy::class,
+        PengeluaranStock::class => PengeluaranStockPolicy::class,
+        Client::class => ClientPolicy::class,
+        Supplier::class => SupplierPolicy::class,
+        Karyawan::class => KaryawanPolicy::class,
+        Kendaraan::class => KendaraanPolicy::class,
     ];
 
     /**
