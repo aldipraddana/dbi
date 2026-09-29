@@ -47,35 +47,33 @@ class PengadaanStockResource extends Resource
                             ->required(),
                     ])
                     ->columns(3),
-                Section::make('Detail Barang')
+                Repeater::make('details')
+                    ->label('List Barang Pengadaan')
+                    ->relationship('details')
                     ->schema([
-                        Repeater::make('details')
-                            ->label('Item Barang')
-                            ->relationship('details')
-                            ->schema([
-                                Forms\Components\TextInput::make('nama_barang')
-                                    ->label('Nama Barang')
-                                    ->required()
-                                    ->maxLength(255),
-                                Forms\Components\TextInput::make('tipe')
-                                    ->label('Tipe')
-                                    ->required()
-                                    ->maxLength(255),
-                                Forms\Components\TextInput::make('pm')
-                                    ->label('PM')
-                                    ->required()
-                                    ->maxLength(255),
-                                Forms\Components\TextInput::make('qty')
-                                    ->label('Qty')
-                                    ->required()
-                                    ->numeric()
-                                    ->minValue(1),
-                            ])
-                            ->columns(4)
-                            ->addActionLabel('Tambah Item')
-                            ->reorderable(false)
-                            ->defaultItems(1),
-                    ]),
+                        Forms\Components\TextInput::make('nama_barang')
+                            ->label('Nama Barang')
+                            ->required()
+                            ->maxLength(255),
+                        Forms\Components\TextInput::make('tipe')
+                            ->label('Tipe')
+                            ->required()
+                            ->maxLength(255),
+                        Forms\Components\TextInput::make('pm')
+                            ->label('PM')
+                            ->required()
+                            ->maxLength(255),
+                        Forms\Components\TextInput::make('qty')
+                            ->label('Qty')
+                            ->required()
+                            ->numeric()
+                            ->minValue(1),
+                    ])
+                    ->columns(4)
+                    ->columnSpanFull()
+                    ->addActionLabel('Tambah Item')
+                    ->reorderable(false)
+                    ->defaultItems(1),
             ]);
     }
 

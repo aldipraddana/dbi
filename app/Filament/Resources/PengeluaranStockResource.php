@@ -7,7 +7,7 @@ use App\Filament\Resources\PengeluaranStockResource\Pages;
 use App\Models\PengeluaranStock;
 use App\Models\PengadaanStockDetail;
 use Filament\Forms;
-use Filament\Forms\Components\Placeholder;
+use Filament\Notifications\Notification;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Section;
 use Filament\Forms\Components\TextInput;
@@ -22,7 +22,7 @@ class PengeluaranStockResource extends Resource
     public static ?string $label = UserMenuConstant::MENU_PENGELUARAN_STOCK;
     protected static ?string $model = PengeluaranStock::class;
     protected static ?string $navigationGroup = 'Transaksi';
-    protected static ?string $navigationIcon = 'heroicon-o-archive-box-arrow-up';
+    protected static ?string $navigationIcon = 'heroicon-o-arrow-up-tray';
     protected static ?int $navigationSort = 6;
 
     public static function form(Form $form): Form
@@ -44,77 +44,96 @@ class PengeluaranStockResource extends Resource
                             ->displayFormat('d F Y'),
                     ])
                     ->columns(2),
-                Section::make('Detail Barang Keluar')
+                Repeater::make('details')
+                    ->label('List Barang Pengeluaran')
+                    ->relationship('details')
                     ->schema([
-                        Repeater::make('details')
-                            ->label('Item Barang')
-                            ->relationship('details')
-                            ->schema([
-                                Forms\Components\Select::make('pengadaan_stock_detail_id')
-                                    ->label('Nama Barang')
-                                    ->options(function () {
-                                        return PengadaanStockDetail::with('pengadaanStock.client')
-                                            ->get()
-                                            ->mapWithKeys(function ($detail) {
-                                                $clientName = $detail->pengadaanStock?->client?->nama_client ?? '-';
-                                                $available = $detail->getAvailableQty();
-                                                return [$detail->id => sprintf(
-                                                    '%s | %s | %s | Tersedia: %s',
-                                                    $detail->nama_barang,
-                                                    $detail->tipe,
-                                                    $detail->pm,
-                                                    $available
-                                                )];
-                                            });
+                        Forms\Components\Select::make('pengadaan_stock_detail_id')
+                            ->label('Nama Barang')
+                            ->getSearchResultsUsing(function (string $search) {
+                                return PengadaanStockDetail::with('pengadaanStock.client')
+                                    ->whereHas('pengadaanStock', fn($q) => $q->where('qty', '>', 0))
+                                    ->where(function ($q) use ($search) {
+                                        $q->where('nama_barang', 'like', "%{$search}%")
+                                            ->orWhere('tipe', 'like', "%{$search}%")
+                                            ->orWhere('pm', 'like', "%{$search}%");
                                     })
-                                    ->searchable()
-                                    ->preload()
-                                    ->required()
-                                    ->live()
-                                    ->afterStateUpdated(function ($state, callable $set) {
-                                        if (! $state) {
-                                            $set('nama_barang', null);
-                                            $set('tipe', null);
-                                            $set('pm', null);
-                                            return;
-                                        }
-                                        $detail = PengadaanStockDetail::with('pengadaanStock.client')->find($state);
-                                        if ($detail) {
-                                            $set('nama_barang', $detail->nama_barang);
-                                            $set('tipe', $detail->tipe);
-                                            $set('pm', $detail->pm);
-                                        }
-                                    }),
-                                TextInput::make('nama_barang')
-                                    ->label('Nama Barang')
-                                    ->disabled()
-                                    ->dehydrated(false),
-                                TextInput::make('tipe')
-                                    ->label('Tipe')
-                                    ->disabled()
-                                    ->dehydrated(false),
-                                TextInput::make('pm')
-                                    ->label('PM')
-                                    ->disabled()
-                                    ->dehydrated(false),
-                                TextInput::make('qty')
-                                    ->label('Qty')
-                                    ->required()
-                                    ->numeric()
-                                    ->minValue(1)
-                                    ->suffixAction(
-                                        \Filament\Forms\Components\Actions\Action::make('info')
-                                            ->icon('heroicon-m-information-circle')
-                                            ->tooltip(function (TextInput $component) {
-                                                return 'Qty tidak boleh melebihi stok tersedia';
-                                            })
-                                    ),
-                            ])
-                            ->columns(5)
-                            ->addActionLabel('Tambah Item')
-                            ->reorderable(false)
-                            ->defaultItems(1),
-                    ]),
+                                    ->limit(10)
+                                    ->get()
+                                    ->mapWithKeys(fn($detail) => [
+                                        $detail->id => sprintf('%s | Tersedia: %s', $detail->nama_barang, $detail->getAvailableQty()),
+                                    ]);
+                            })
+                            ->searchable()
+                            ->preload(false)
+                            ->required()
+                            ->live()
+                            ->afterStateUpdated(function ($state, callable $set) {
+                                if (! $state) {
+                                    $set('nama_barang', null);
+                                    $set('tipe', null);
+                                    $set('pm', null);
+                                    $set('qty', null);
+                                    return;
+                                }
+                                $detail = PengadaanStockDetail::with('pengadaanStock.client')->find($state);
+                                if ($detail) {
+                                    $set('nama_barang', $detail->nama_barang);
+                                    $set('tipe', $detail->tipe);
+                                    $set('pm', $detail->pm);
+                                    $set('qty', null);
+                                }
+                            }),
+                        TextInput::make('nama_barang')
+                            ->label('Nama Barang')
+                            ->disabled()
+                            ->dehydrated(false),
+                        TextInput::make('tipe')
+                            ->label('Tipe')
+                            ->disabled()
+                            ->dehydrated(false),
+                        TextInput::make('pm')
+                            ->label('PM')
+                            ->disabled()
+                            ->dehydrated(false),
+                        TextInput::make('qty')
+                            ->label('Qty')
+                            ->required()
+                            ->numeric()
+                            ->minValue(1)
+                            ->live()
+                            ->afterStateUpdated(function ($state, callable $set, callable $get) {
+                                if ($state === null || $state === '') {
+                                    return;
+                                }
+                                $intState = (int) $state;
+                                if ($intState <= 0) {
+                                    return;
+                                }
+                                $detailId = $get('pengadaan_stock_detail_id');
+                                if (! $detailId) {
+                                    return;
+                                }
+                                $detail = PengadaanStockDetail::find($detailId);
+                                if (! $detail) {
+                                    return;
+                                }
+                                $available = $detail->getAvailableQty();
+                                if ($intState > $available) {
+                                    Notification::make()
+                                        ->warning()
+                                        ->title('Stok tidak mencukupi')
+                                        ->body("Stok tersedia hanya {$available}. Qty akan dikosongkan.")
+                                        ->send();
+                                    $set('qty', $available);
+                                }
+                            }),
+                    ])
+                    ->columns(5)
+                    ->addActionLabel('Tambah Item')
+                    ->columnSpanFull()
+                    ->reorderable(false)
+                    ->defaultItems(1),
             ]);
     }
 
