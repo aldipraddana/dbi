@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use App\Models\Client;
+use App\Models\DanaKeluar;
 use App\Models\KategoriPengeluaran;
 use App\Models\Karyawan;
 use App\Models\Kendaraan;
@@ -15,6 +16,7 @@ use App\Models\Supplier;
 use App\Models\Transactions;
 use App\Models\User;
 use App\Policies\ClientPolicy;
+use App\Policies\DanaKeluarPolicy;
 use App\Policies\KategoriPengeluaranPolicy;
 use App\Policies\KaryawanPolicy;
 use App\Policies\KendaraanPolicy;
@@ -45,6 +47,7 @@ class AuthServiceProvider extends ServiceProvider
         LaporanKeuanganHistory::class => LaporanKeuanganHistoryPolicy::class,
         PengeluaranStock::class => PengeluaranStockPolicy::class,
         Client::class => ClientPolicy::class,
+        DanaKeluar::class => DanaKeluarPolicy::class,
         Supplier::class => SupplierPolicy::class,
         Karyawan::class => KaryawanPolicy::class,
         Kendaraan::class => KendaraanPolicy::class,

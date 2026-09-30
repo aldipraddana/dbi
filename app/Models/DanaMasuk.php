@@ -30,12 +30,4 @@ class DanaMasuk extends Model
             'jumlah_dana_masuk' => 'decimal:2',
         ];
     }
-
-    // boot on creat
-    protected static function booted(): void
-    {
-        static::creating(function ($model) {
-            dd('creating');
-        });
-    }
 }

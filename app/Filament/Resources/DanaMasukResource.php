@@ -4,6 +4,7 @@ namespace App\Filament\Resources;
 
 use App\Constants\UserMenuConstant;
 use App\Filament\Resources\DanaMasukResource\Pages;
+use App\Models\Client;
 use App\Models\DanaMasuk;
 use Filament\Forms;
 use Filament\Forms\Components\Section;
@@ -43,10 +44,13 @@ class DanaMasukResource extends Resource
                             ->label('No. Invoice')
                             ->required()
                             ->maxLength(255),
-                        TextInput::make('customer')
-                            ->label('Customer')
+                        Select::make('customer')
+                            ->label('Client / Customer')
                             ->required()
-                            ->maxLength(255),
+                            ->getSearchResultsUsing(fn(string $search) => Client::where('nama_client', 'like', "%{$search}%")
+                                ->limit(10)->get()->mapWithKeys(fn($c) => [$c->id => $c->nama_client]))
+                            ->searchable()
+                            ->preload(false),
                         TextInput::make('po')
                             ->label('No. PO')
                             ->maxLength(255),
@@ -57,7 +61,6 @@ class DanaMasukResource extends Resource
                         TextInput::make('jumlah_dana_masuk')
                             ->label('Jumlah Dana Masuk')
                             ->required()
-                            ->numeric()
                             ->prefix('Rp')
                             ->mask(\Filament\Support\RawJs::make('$money($input)'))
                             ->dehydrateStateUsing(fn ($state): float => (float) preg_replace('/\D/', '', (string) $state)),

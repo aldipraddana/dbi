@@ -17,7 +17,6 @@ class DatabaseSeeder extends Seeder
     {
         DB::table('user_menus')->insert([
             ['name' => UserMenuConstant::MENU_USER_MANAGEMENT],
-            ['name' => UserMenuConstant::MENU_PENERIMAAN],
             ['name' => UserMenuConstant::MENU_EXPENSE],
             ['name' => UserMenuConstant::MENU_LAPORAN_KEUANGAN],
             ['name' => UserMenuConstant::MENU_CLIENT],
