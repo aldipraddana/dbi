@@ -5,7 +5,7 @@ namespace App\Filament\Resources\DanaKeluarResource\Pages;
 use App\Enums\DanaKeluarJenis;
 use App\Enums\KategoriGaji;
 use App\Enums\TipePekerja;
-use App\Filament\Resources\DanaKeluarResource\Resource;
+use App\Filament\Resources\DanaKeluarResource;
 use App\Models\DanaKeluar;
 use Filament\Resources\Pages\CreateRecord;
 

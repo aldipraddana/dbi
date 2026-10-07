@@ -25,6 +25,8 @@ class DatabaseSeeder extends Seeder
             ['name' => UserMenuConstant::MENU_KENDARAAN],
             ['name' => UserMenuConstant::MENU_PENGADAAN_STOCK],
             ['name' => UserMenuConstant::MENU_PENGELUARAN_STOCK],
+            ['name' => UserMenuConstant::MENU_DANA_MASUK],
+            ['name' => UserMenuConstant::MENU_DANA_KELUAR],
         ]);
 
         $this->call([

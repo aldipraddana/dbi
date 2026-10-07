@@ -4,7 +4,7 @@ namespace App\Filament\Resources\DanaKeluarResource\Pages;
 
 use App\Enums\DanaKeluarJenis;
 use App\Enums\KategoriGaji;
-use App\Filament\Resources\DanaKeluarResource\Resource;
+use App\Filament\Resources\DanaKeluarResource;
 use Filament\Resources\Pages\EditRecord;
 
 class EditDanaKeluar extends EditRecord
@@ -51,5 +51,19 @@ class EditDanaKeluar extends EditRecord
         }
 
         return $data;
+    }
+
+    protected function afterSave(): void
+    {
+        $this->syncTotalBahanBaku();
+    }
+
+    private function syncTotalBahanBaku(): void
+    {
+        $record = $this->record;
+
+        if ($record->jenis === \App\Enums\DanaKeluarJenis::BAHAN_BAKU) {
+            $record->update(['total' => $record->items()->sum('subtotal')]);
+        }
     }
 }

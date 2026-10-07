@@ -53,6 +53,14 @@ class DanaKeluar extends Model
         ];
     }
 
+    // boot on create
+    protected static function booted(): void
+    {
+        // static::creating(function (DanaKeluar $danaKeluar) {
+        //     dd($danaKeluar);
+        // });
+    }
+
     public function items(): HasMany
     {
         return $this->hasMany(DanaKeluarItem::class);

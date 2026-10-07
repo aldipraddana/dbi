@@ -21,7 +21,7 @@ class PengeluaranStockResource extends Resource
 {
     public static ?string $label = UserMenuConstant::MENU_PENGELUARAN_STOCK;
     protected static ?string $model = PengeluaranStock::class;
-    protected static ?string $navigationGroup = 'Transaksi';
+    protected static ?string $navigationGroup = 'Stock';
     protected static ?string $navigationIcon = 'heroicon-o-arrow-up-tray';
     protected static ?int $navigationSort = 6;
 

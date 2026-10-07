@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Filament\Resources\DanaKeluarResource;
+namespace App\Filament\Resources;
 
 use App\Constants\UserMenuConstant;
 use App\Enums\DanaKeluarJenis;
@@ -12,14 +12,17 @@ use App\Models\DanaKeluarItem;
 use App\Models\Karyawan;
 use App\Models\PengadaanStockDetail;
 use Filament\Forms;
+use Filament\Forms\Components\Actions\Action;
 use Filament\Forms\Components\Placeholder;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\Hidden;
 use Filament\Forms\Form;
 use Filament\Forms\Get;
+use Filament\Forms\Set;
 use Filament\Resources\Resource as BaseResource;
 use Filament\Tables;
 use Filament\Tables\Columns\Summarizers\Sum;
@@ -27,6 +30,7 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\Filter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 
 class DanaKeluarResource extends BaseResource
 {
@@ -38,7 +42,7 @@ class DanaKeluarResource extends BaseResource
 
     public static function form(Form $form): Form
     {
-        return $form->schema([self::level1Fields()]);
+        return $form->schema(self::level1Fields());
     }
 
     // ================================================================
@@ -47,7 +51,7 @@ class DanaKeluarResource extends BaseResource
     private static function level1Fields(): array
     {
         return [
-            Section::make('Data Dana Keluar')
+            Section::make('Pilih Tanggal dan Jenis Dana Keluar')
                 ->schema([
                     Forms\Components\DatePicker::make('tanggal')
                         ->label('Tanggal')
@@ -60,7 +64,7 @@ class DanaKeluarResource extends BaseResource
                         ->required()
                         ->options(DanaKeluarJenis::options())
                         ->live()
-                        ->afterStateUpdated(function (Get $get, callable $set) {
+                        ->afterStateUpdated(function (Get $get, Set $set) {
                             // Reset semua field level 2 saat jenis berubah
                             $set('kategori_gaji', null);
                             $set('tipe_pekerja', null);
@@ -81,6 +85,8 @@ class DanaKeluarResource extends BaseResource
                             $set('items', []);
                             $set('sisa_kas_bon', null);
                         }),
+                    Hidden::make('total')
+                        ->default(10),
                 ])
                 ->columns(2),
 
@@ -91,7 +97,10 @@ class DanaKeluarResource extends BaseResource
                 ->schema([
                     Select::make('kendaraan_id')
                         ->label('Kendaraan')
-                        ->relationship('kendaraan', 'nopol')
+                        ->relationship('kendaraan', 'no_polisi')
+                        ->getOptionLabelFromRecordUsing(fn (Model $record) =>
+                            "{$record->no_polisi} - {$record->jenis_kendaraan} {$record->model_tipe}"
+                        )
                         ->searchable()->preload(),
                     Select::make('karyawan_id')
                         ->label('Karyawan')
@@ -101,7 +110,7 @@ class DanaKeluarResource extends BaseResource
                     self::nominalField('nominal', DanaKeluarJenis::OPERASIONAL->value),
                 ])
                 ->columns(2)
-                ->visible(fn(Get $get) => $get('jenis')?->value === DanaKeluarJenis::OPERASIONAL->value),
+                ->visible(fn(Get $get) => self::stateValue($get('jenis')) === DanaKeluarJenis::OPERASIONAL->value),
 
             // ================================================================
             // BAHAN BAKU
@@ -115,7 +124,7 @@ class DanaKeluarResource extends BaseResource
                         ->searchable()->preload()
                         ->required()
                         ->live()
-                        ->afterStateUpdated(fn(Get $get, callable $set) => $set('items', [])),
+                        ->afterStateUpdated(fn(Get $get, Set $set) => $set('items', [])),
                     // Repeater items: filter barang berdasarkan supplier
                     self::bahanBakuRepeater(),
                     // Total read-only
@@ -127,7 +136,7 @@ class DanaKeluarResource extends BaseResource
                             return 'Rp ' . number_format($total, 0, ',', '.');
                         }),
                 ])
-                ->visible(fn(Get $get) => $get('jenis')?->value === DanaKeluarJenis::BAHAN_BAKU->value),
+                ->visible(fn(Get $get) => self::stateValue($get('jenis')) === DanaKeluarJenis::BAHAN_BAKU->value),
 
             // ================================================================
             // GAJI
@@ -139,19 +148,23 @@ class DanaKeluarResource extends BaseResource
                         ->required()
                         ->options(KategoriGaji::options())
                         ->live()
-                        ->afterStateUpdated(fn(Get $get, callable $set) => tap($set)([
-                            'karyawan_id' => null,
-                            'client_id' => null,
-                            'nama_proyek' => null,
-                            'nama_mandor' => null,
-                            'nama_pemborong' => null,
-                            'nama_pekerjaan' => null,
-                            'nominal' => null,
-                            'potongan_kas_bon' => null,
-                            'keterangan' => null,
-                            'tipe_pekerja' => null,
-                            'sisa_kas_bon' => null,
-                        ])),
+                        ->afterStateUpdated(function (Get $get, Set $set) {
+                            foreach ([
+                                'karyawan_id',
+                                'client_id',
+                                'nama_proyek',
+                                'nama_mandor',
+                                'nama_pemborong',
+                                'nama_pekerjaan',
+                                'nominal',
+                                'potongan_kas_bon',
+                                'keterangan',
+                                'tipe_pekerja',
+                                'sisa_kas_bon',
+                            ] as $field) {
+                                $set($field, null);
+                            }
+                        }),
 
                     // --- Uang Makan & Lembur ---
                     Select::make('karyawan_id')
@@ -183,10 +196,10 @@ class DanaKeluarResource extends BaseResource
                         ->label('Tipe Pekerja')
                         ->options(TipePekerja::options())
                         ->live()
-                        ->afterStateUpdated(fn(Get $get, callable $set) => tap($set)([
-                            'karyawan_id' => null,
-                            'nama_pemborong' => null,
-                        ]))
+                        ->afterStateUpdated(function (Get $get, Set $set) {
+                            $set('karyawan_id', null);
+                            $set('nama_pemborong', null);
+                        })
                         ->visible(fn(Get $get) => self::isGajiKategori($get, [KategoriGaji::KAS_BON->value])),
                     Select::make('karyawan_id')
                         ->label('Karyawan (Harian)')
@@ -203,13 +216,17 @@ class DanaKeluarResource extends BaseResource
                         ->label('Tipe Pekerja')
                         ->options(TipePekerja::options())
                         ->live()
-                        ->afterStateUpdated(fn(Get $get, callable $set) => tap($set)([
-                            'karyawan_id' => null,
-                            'nama_pemborong' => null,
-                            'nama_proyek' => null,
-                            'potongan_kas_bon' => null,
-                            'sisa_kas_bon' => null,
-                        ]))
+                        ->afterStateUpdated(function (Get $get, Set $set) {
+                            foreach ([
+                                'karyawan_id',
+                                'nama_pemborong',
+                                'nama_proyek',
+                                'potongan_kas_bon',
+                                'sisa_kas_bon',
+                            ] as $field) {
+                                $set($field, null);
+                            }
+                        })
                         ->visible(fn(Get $get) => self::isGajiKategori($get, [KategoriGaji::GAJI_BULANAN->value])),
 
                     // Gaji Bulanan - Harian
@@ -219,7 +236,7 @@ class DanaKeluarResource extends BaseResource
                         ->searchable()->preload()
                         ->options(fn() => Karyawan::where('jenis', 'harian')->pluck('nama_lengkap', 'id'))
                         ->live()
-                        ->afterStateUpdated(function ($state, Get $get, callable $set) {
+                        ->afterStateUpdated(function ($state, Get $get, Set $set) {
                             if ($state) {
                                 $sisa = DanaKeluar::getSisaKasBonKaryawan((int) $state);
                                 $set('sisa_kas_bon', $sisa);
@@ -237,7 +254,7 @@ class DanaKeluarResource extends BaseResource
                     TextInput::make('nama_pemborong')
                         ->label('Nama Pemborong')
                         ->live()
-                        ->afterStateUpdated(function ($state, Get $get, callable $set) {
+                        ->afterStateUpdated(function ($state, Get $get, Set $set) {
                             if ($state) {
                                 $sisa = DanaKeluar::getSisaKasBonPemborong($state);
                                 $set('sisa_kas_bon', $sisa);
@@ -252,7 +269,7 @@ class DanaKeluarResource extends BaseResource
                     // Nominal, Potongan, Total Gaji Bulanan
                     self::nominalField('nominal', fn(Get $get) => self::isGajiKategori($get, [KategoriGaji::GAJI_BULANAN->value]))
                         ->live(onBlur: true)
-                        ->afterStateUpdated(function ($state, Get $get, callable $set) {
+                        ->afterStateUpdated(function ($state, Get $get, Set $set) {
                             $nominal = (float) preg_replace('/\D/', '', (string) ($state ?? 0));
                             $sisa = (float) ($get('sisa_kas_bon') ?? 0);
                             $set('potongan_kas_bon', min($sisa, $nominal));
@@ -263,7 +280,7 @@ class DanaKeluarResource extends BaseResource
                         ->label('Total (Nominal - Potongan Kas Bon)')
                         ->content(fn(Get $get) => 'Rp ' . number_format(max(0, (float) ($get('nominal') ?? 0) - (float) ($get('potongan_kas_bon') ?? 0)), 0, ',', '.')),
                 ])
-                ->visible(fn(Get $get) => $get('jenis')?->value === DanaKeluarJenis::GAJI->value),
+                ->visible(fn(Get $get) => self::stateValue($get('jenis')) === DanaKeluarJenis::GAJI->value),
 
             // ================================================================
             // BIAYA KANTOR & BIAYA LAIN-LAIN
@@ -275,12 +292,12 @@ class DanaKeluarResource extends BaseResource
                         ->label('Qty')
                         ->numeric()->minValue(0)
                         ->live()
-                        ->afterStateUpdated(fn(Get $get, callable $set) => $set('total',
+                        ->afterStateUpdated(fn(Get $get, Set $set) => $set('total',
                             (float) ($get('qty') ?? 0) * (float) ($get('nominal') ?? 0)
                         )),
                     self::nominalField('nominal', true)
                         ->live(onBlur: true)
-                        ->afterStateUpdated(fn(Get $get, callable $set) => $set('total',
+                        ->afterStateUpdated(fn(Get $get, Set $set) => $set('total',
                             (float) ($get('qty') ?? 0) * (float) ($get('nominal') ?? 0)
                         )),
                     Placeholder::make('total_biaya')
@@ -291,7 +308,7 @@ class DanaKeluarResource extends BaseResource
                     Textarea::make('keterangan')->label('Keterangan')->rows(3),
                 ])
                 ->columns(2)
-                ->visible(fn(Get $get) => in_array($get('jenis')?->value, [
+                ->visible(fn(Get $get) => in_array(self::stateValue($get('jenis')), [
                     DanaKeluarJenis::BIAYA_KANTOR->value,
                     DanaKeluarJenis::BIAYA_LAIN->value,
                 ], true)),
@@ -301,18 +318,23 @@ class DanaKeluarResource extends BaseResource
     // ================================================================
     // HELPER — cek apakah jenis GAJI dan kategori_gaji cocok
     // ================================================================
+    private static function stateValue(mixed $state): mixed
+    {
+        return $state instanceof \BackedEnum ? $state->value : $state;
+    }
+
     private static function isGajiKategori(Get $get, array $kategoriValues): bool
     {
-        return $get('jenis')?->value === DanaKeluarJenis::GAJI->value
-            && in_array($get('kategori_gaji')?->value, $kategoriValues, true);
+        return self::stateValue($get('jenis')) === DanaKeluarJenis::GAJI->value
+            && in_array(self::stateValue($get('kategori_gaji')), $kategoriValues, true);
     }
 
     // Helper: cek apakah jenis GAJI, kategori_gaji DAN tipe_pekerja cocok
     private static function isGajiTipe(Get $get, string $kategori, string $tipe): bool
     {
-        return $get('jenis')?->value === DanaKeluarJenis::GAJI->value
-            && $get('kategori_gaji')?->value === $kategori
-            && $get('tipe_pekerja')?->value === $tipe;
+        return self::stateValue($get('jenis')) === DanaKeluarJenis::GAJI->value
+            && self::stateValue($get('kategori_gaji')) === $kategori
+            && self::stateValue($get('tipe_pekerja')) === $tipe;
     }
 
     // ================================================================
@@ -339,7 +361,6 @@ class DanaKeluarResource extends BaseResource
             ->label('Items Bahan Baku')
             ->relationship('items')
             ->schema([
-                // Select barang: opsi HANYA dari pengadaan stock supplier terpilih
                 Select::make('pengadaan_stock_id')
                     ->label('Barang (Pengadaan Stock)')
                     ->options(function (Get $get) {
@@ -347,82 +368,88 @@ class DanaKeluarResource extends BaseResource
                         if (! $supplierId) {
                             return [];
                         }
-                        return PengadaanStockDetail::whereHas('pengadaanStock', fn($q) => $q->where('supplier_id', $supplierId))
-                            ->with('pengadaanStock.supplier')
+                        return PengadaanStockDetail::whereHas('pengadaanStock', fn ($q) => $q->where('supplier_id', $supplierId))
                             ->get()
-                            ->mapWithKeys(fn($detail) => [
-                                $detail->id => sprintf(
-                                    '%s | Supplier: %s | Qty: %s',
-                                    $detail->nama_barang,
-                                    $detail->pengadaanStock->supplier->nama_supplier ?? '-',
-                                    $detail->qty
-                                ),
+                            ->mapWithKeys(fn ($detail) => [
+                                $detail->id => sprintf('%s | Tipe: %s', $detail->nama_barang, $detail->tipe),
                             ]);
                     })
                     ->searchable()
                     ->preload(false)
                     ->live()
-                    ->disabled(fn(Get $get) => ! $get('../../supplier_id'))
-                    // Saat barang dipilih, auto-fill field read-only
-                    ->afterStateUpdated(function ($state, callable $set, callable $get) {
-                        if (! $state) {
-                            $set('nama_barang', null);
-                            $set('qty', null);
-                            $set('harga_satuan', null);
-                            $set('subtotal', null);
-                            return;
-                        }
-                        $detail = PengadaanStockDetail::with('pengadaanStock.supplier')->find($state);
-                        if ($detail) {
-                            $harga = (float) ($detail->harga_satuan ?? 0);
-                            $qty = (float) ($detail->qty ?? 0);
-                            $set('nama_barang', $detail->nama_barang);
-                            $set('qty', $detail->qty);
-                            $set('harga_satuan', number_format($harga, 0, ',', '.'));
-                            $set('subtotal', number_format($harga * $qty, 0, ',', '.'));
-                        }
+                    ->disabled(fn (Get $get) => ! $get('../../supplier_id'))
+                    ->afterStateUpdated(function ($state, Get $get, Set $set) {
+                        $detail = $state ? PengadaanStockDetail::find($state) : null;
+
+                        $qty   = (float) ($detail?->qty ?? 0);
+                        $harga = (float) ($detail?->harga_satuan ?? 0);
+
+                        $set('nama_barang', $detail?->nama_barang);
+                        $set('qty', 1);
+                        $set('harga_satuan', $detail ? $harga : null);
+                        $set('subtotal', $qty * $harga);
+
+                        self::syncTotal($get, $set, '../../');
                     }),
 
                 TextInput::make('nama_barang')
                     ->label('Nama Barang')
-                    ->disabled()
+                    ->readOnly()
                     ->dehydrated(false),
 
-                Placeholder::make('qty_info')
-                    ->label('Qty Tersedia')
-                    ->content(function (Get $get) {
-                        $detailId = $get('pengadaan_stock_id');
-                        if (! $detailId) {
-                            return '-';
-                        }
-                        $detail = PengadaanStockDetail::find($detailId);
-                        return $detail ? (string) $detail->qty : '-';
-                    }),
+                TextInput::make('qty')
+                    ->label('Qty')
+                    ->required()
+                    ->numeric()
+                    ->live(onBlur: true)
+                    ->afterStateUpdated(fn (Get $get, Set $set) => self::updateBahanBakuItemTotals($get, $set)),
 
                 TextInput::make('harga_satuan')
                     ->label('Harga Satuan')
                     ->numeric()
                     ->prefix('Rp')
                     ->live(onBlur: true)
-                    ->dehydrateStateUsing(fn($state): float => (float) preg_replace('/\D/', '', (string) ($state ?? 0)))
-                    ->afterStateUpdated(function (Get $get, callable $set) {
-                        $harga = (float) preg_replace('/\D/', '', (string) ($get('harga_satuan') ?? '0'));
-                        $qty = (float) ($get('qty') ?? 0);
-                        $set('harga_satuan', number_format($harga, 0, ',', '.'));
-                        $set('subtotal', number_format($harga * $qty, 0, ',', '.'));
-                    }),
+                    ->afterStateUpdated(fn (Get $get, Set $set) => self::updateBahanBakuItemTotals($get, $set)),
 
+                // state tetap angka murni, jangan pakai formatStateUsing "Rp ..."
                 TextInput::make('subtotal')
                     ->label('Subtotal')
-                    ->disabled()
-                    ->dehydrated(false)
-                    ->formatStateUsing(fn($state) => $state ? 'Rp ' . number_format((float) $state, 0, ',', '.') : 'Rp 0'),
-            ])
-            ->columns(5)
-            ->addActionLabel('Tambah Item')
-            ->defaultItems(1)
-            ->reorderable(false)
+                    ->numeric()
+                    ->prefix('Rp')
+                    ->readOnly()
+                    ->dehydrated(),
+                ])
+                ->columns(5)
+                ->addActionLabel('Tambah Item')
+                ->defaultItems(1)
+                ->reorderable()
+                // hitung ulang total setelah item dihapus
+                ->deleteAction(fn (Action $action) => $action->after(
+                fn (Get $get, Set $set) => self::syncTotal($get, $set)
+            ))
             ->columnSpanFull();
+    }
+
+    private static function updateBahanBakuItemTotals(Get $get, Set $set): void
+    {
+        $subtotal = (float) ($get('qty') ?? 0) * (float) ($get('harga_satuan') ?? 0);
+        $set('subtotal', $subtotal);
+
+        self::syncTotal($get, $set, '../../');
+    }
+
+    /**
+     * $prefix = '../../' bila dipanggil dari dalam item repeater,
+     *           ''       bila dipanggil dari level form (mis. setelah delete).
+     */
+    private static function syncTotal(Get $get, Set $set, string $prefix = ''): void
+    {
+        $set($prefix . 'total', self::calculateBahanBakuTotal($get($prefix . 'items') ?? []));
+    }
+
+    private static function calculateBahanBakuTotal(array $items): float
+    {
+        return (float) collect($items)->sum(fn ($item) => (float) ($item['subtotal'] ?? 0));
     }
 
     // ================================================================

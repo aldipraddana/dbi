@@ -2,7 +2,7 @@
 
 namespace App\Filament\Resources\DanaKeluarResource\Pages;
 
-use App\Filament\Resources\DanaKeluarResource\Resource;
+use App\Filament\Resources\DanaKeluarResource;
 use Filament\Actions;
 use Filament\Resources\Pages\ListRecords;
 

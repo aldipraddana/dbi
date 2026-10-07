@@ -17,7 +17,7 @@ use Illuminate\Database\Eloquent\Builder;
 class PengadaanStockResource extends Resource
 {
     protected static ?string $model = PengadaanStock::class;
-    protected static ?string $navigationGroup = 'Transaksi';
+    protected static ?string $navigationGroup = 'Stock';
     protected static ?string $navigationLabel = UserMenuConstant::MENU_PENGADAAN_STOCK;
     protected static ?string $navigationIcon = 'heroicon-o-archive-box-x-mark';
     protected static ?int $navigationSort = 5;
