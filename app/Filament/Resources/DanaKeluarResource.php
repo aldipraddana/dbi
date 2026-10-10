@@ -409,6 +409,8 @@ class DanaKeluarResource extends BaseResource
                     ->required()
                     ->prefix('Rp')
                     ->mask(\Filament\Support\RawJs::make('$money($input)'))
+                    ->live(onBlur: true)
+                    ->dehydrateStateUsing(fn ($state): float => (float) preg_replace('/\D/', '', (string) $state))
                     ->afterStateUpdated(fn (Get $get, Set $set) => self::updateBahanBakuItemTotals($get, $set)),
 
                 // state tetap angka murni, jangan pakai formatStateUsing "Rp ..."

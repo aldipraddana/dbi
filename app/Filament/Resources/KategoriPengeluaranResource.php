@@ -20,6 +20,7 @@ class KategoriPengeluaranResource extends Resource
     protected static ?string $navigationIcon = 'heroicon-o-tag';
     protected static ?string $navigationLabel = 'Kategori Pengeluaran';
     protected static ?int $navigationSort = 6;
+    protected static bool $shouldRegisterNavigation = false;
 
    public static function form(Form $form): Form
     {

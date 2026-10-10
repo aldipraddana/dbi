@@ -31,6 +31,14 @@ class DanaKeluarItem extends Model
         ];
     }
 
+    // protected static function booted(): void
+    // {
+    //     static::creating(function (DanaKeluarItem $danaKeluarItem) {
+    //         dd($danaKeluarItem);
+    //         $danaKeluarItem->subtotal = $danaKeluarItem->qty * $danaKeluarItem->harga_satuan;
+    //     });
+    // }
+
     public function danaKeluar(): BelongsTo
     {
         return $this->belongsTo(DanaKeluar::class);

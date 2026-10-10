@@ -2,14 +2,14 @@
 
 namespace App\Filament\Resources\LaporanKeuanganHistoryResource\Pages;
 
-use App\Filament\Resources\LaporanKeuanganHistoryResource;
+use App\Filament\Resources\LaporanKeuanganHistoryResource\LaporanKeuanganHistoryResource as ResourcesLaporanKeuanganHistoryResource;
 use Filament\Resources\Pages\ViewRecord;
 use Filament\Actions;
 use Illuminate\Http\RedirectResponse;
 
 class ViewLaporanKeuanganHistory extends ViewRecord
 {
-    protected static string $resource = LaporanKeuanganHistoryResource::class;
+    protected static string $resource = ResourcesLaporanKeuanganHistoryResource::class;
 
     protected function getHeaderActions(): array
     {
