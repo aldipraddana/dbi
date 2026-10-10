@@ -403,12 +403,12 @@ class DanaKeluarResource extends BaseResource
                     ->numeric()
                     ->live(onBlur: true)
                     ->afterStateUpdated(fn (Get $get, Set $set) => self::updateBahanBakuItemTotals($get, $set)),
-
+                
                 TextInput::make('harga_satuan')
                     ->label('Harga Satuan')
-                    ->numeric()
+                    ->required()
                     ->prefix('Rp')
-                    ->live(onBlur: true)
+                    ->mask(\Filament\Support\RawJs::make('$money($input)'))
                     ->afterStateUpdated(fn (Get $get, Set $set) => self::updateBahanBakuItemTotals($get, $set)),
 
                 // state tetap angka murni, jangan pakai formatStateUsing "Rp ..."
@@ -432,7 +432,8 @@ class DanaKeluarResource extends BaseResource
 
     private static function updateBahanBakuItemTotals(Get $get, Set $set): void
     {
-        $subtotal = (float) ($get('qty') ?? 0) * (float) ($get('harga_satuan') ?? 0);
+        $hargaSatuan = (float) preg_replace('/\D/', '', (string) $get('harga_satuan') ?? 0);
+        $subtotal = (float) ($get('qty') ?? 0) * $hargaSatuan;
         $set('subtotal', $subtotal);
 
         self::syncTotal($get, $set, '../../');

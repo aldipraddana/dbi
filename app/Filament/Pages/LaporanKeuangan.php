@@ -70,17 +70,17 @@ class LaporanKeuangan extends Page
                 ->label('Generate Excel')
                 ->icon('heroicon-o-document-arrow-down')
                 ->color('success')
-                ->action(function (): void {
+                ->action(function () {   // jangan pakai ": void"
                     $this->validateForm();
                     $data = $this->form->getState();
                     $this->saveHistory($data, 'excel');
 
-                    $this->dispatch('download-file', [
-                        'url' => route('laporan.keuangan.download-excel', [
-                            'jenis' => $data['jenis_laporan'],
-                            'tanggal_mulai' => $data['tanggal_mulai'],
-                            'tanggal_akhir' => $data['tanggal_akhir'],
-                        ]),
+                    return redirect()->route('laporan.keuangan.download-excel', [
+                        'jenis' => $data['jenis_laporan'] instanceof \BackedEnum
+                            ? $data['jenis_laporan']->value
+                            : $data['jenis_laporan'],
+                        'tanggal_mulai' => \Carbon\Carbon::parse($data['tanggal_mulai'])->format('Y-m-d'),
+                        'tanggal_akhir' => \Carbon\Carbon::parse($data['tanggal_akhir'])->format('Y-m-d'),
                     ]);
                 }),
             Action::make('printPdf')
@@ -92,13 +92,15 @@ class LaporanKeuangan extends Page
                     $data = $this->form->getState();
                     $this->saveHistory($data, 'pdf');
 
-                    $this->dispatch('open-print-view', [
-                        'url' => route('laporan.keuangan.print', [
-                            'jenis' => $data['jenis_laporan'],
-                            'tanggal_mulai' => $data['tanggal_mulai'],
-                            'tanggal_akhir' => $data['tanggal_akhir'],
-                        ]),
+                    $url = route('laporan.keuangan.print', [
+                        'jenis' => $data['jenis_laporan'] instanceof \BackedEnum
+                            ? $data['jenis_laporan']->value
+                            : $data['jenis_laporan'],
+                        'tanggal_mulai' => \Carbon\Carbon::parse($data['tanggal_mulai'])->format('Y-m-d'),
+                        'tanggal_akhir' => \Carbon\Carbon::parse($data['tanggal_akhir'])->format('Y-m-d'),
                     ]);
+
+                    $this->js('window.open(' . json_encode($url) . ", '_blank')");
                 }),
         ];
     }

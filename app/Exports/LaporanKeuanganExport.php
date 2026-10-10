@@ -8,6 +8,7 @@ use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Style\Alignment;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class LaporanKeuanganExport
 {
@@ -19,7 +20,7 @@ class LaporanKeuanganExport
         protected string $tanggalAkhir,
     ) {}
 
-    public function download(): \Symfony\Component\HttpFoundation\StreamedResponse
+    public function download(): StreamedResponse
     {
         $this->spreadsheet = new Spreadsheet();
         $sheet = $this->spreadsheet->getActiveSheet();
@@ -29,14 +30,32 @@ class LaporanKeuanganExport
 
         $fileName = $this->generateFileName();
 
+        // Pastikan ekstensi .xlsx dan nama file aman
+        $fileName = preg_replace('/[^A-Za-z0-9_\-\.]/', '_', $fileName);
+        if (! str_ends_with(strtolower($fileName), '.xlsx')) {
+            $fileName .= '.xlsx';
+        }
+
         return response()->streamDownload(
-            function () {
+            function (): void {
+                // Bersihkan output buffer supaya file tidak korup
+                while (ob_get_level() > 0) {
+                    ob_end_clean();
+                }
+
                 $writer = new Xlsx($this->spreadsheet);
+                $writer->setPreCalculateFormulas(false);
                 $writer->save('php://output');
+
+                $this->spreadsheet->disconnectWorksheets();
+                unset($this->spreadsheet);
             },
             $fileName,
             [
                 'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                'Content-Disposition' => 'attachment; filename="' . $fileName . '"',
+                'Cache-Control' => 'max-age=0, no-cache, must-revalidate',
+                'Pragma' => 'public',
             ]
         );
     }
@@ -72,8 +91,13 @@ class LaporanKeuanganExport
 
         $sheet->setCellValue('A' . $startRow, '[ISI LAPORAN AKAN DITAMBAHKAN KEMUDIAN]');
         $sheet->getStyle('A' . $startRow)->applyFromArray([
-            'font' => ['italic' => true, 'color' => ['rgb' => '999999']],
-            'alignment' => new Alignment(Alignment::HORIZONTAL_CENTER),
+            'font' => [
+                'italic' => true,
+                'color' => ['rgb' => '999999'],
+            ],
+            'alignment' => [
+                'horizontal' => Alignment::HORIZONTAL_CENTER,
+            ],
         ]);
     }
 
