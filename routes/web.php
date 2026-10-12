@@ -1,10 +1,9 @@
 <?php
 
-use App\Exports\LaporanKeuanganExport;
 use App\Http\Controllers\FrontendController;
+use App\Http\Controllers\LaporanKeuanganController;
 use App\Http\Controllers\RequestController;
 use Illuminate\Support\Facades\Route;
-use Symfony\Component\HttpFoundation\StreamedResponse;
 
 Route::get('/', function () {
     return view('welcome');
@@ -25,19 +24,5 @@ Route::middleware('auth')->group(function () {
     Route::get('import1', [RequestController::class, 'import1'])->name('import1');
     Route::post('import1', [RequestController::class, 'saveImport1'])->name('import1.save');
     Route::get('laporan-keuangan/print', [RequestController::class, 'printLaporanKeuangan'])->name('laporan.keuangan.print');
-    Route::get('laporan-keuangan/download-excel', function (\Illuminate\Http\Request $request): StreamedResponse {
-        $validated = $request->validate([
-            'jenis' => 'required|string',
-            'tanggal_mulai' => 'required|date',
-            'tanggal_akhir' => 'required|date',
-        ]);
-
-        $export = new LaporanKeuanganExport(
-            $validated['jenis'],
-            $validated['tanggal_mulai'],
-            $validated['tanggal_akhir']
-        );
-
-        return $export->download();
-    })->name('laporan.keuangan.download-excel');
+    Route::get('laporan-keuangan/download-excel', [LaporanKeuanganController::class, 'downloadExcel'])->name('laporan.keuangan.download-excel');
 });
