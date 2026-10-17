@@ -4,14 +4,12 @@ declare(strict_types=1);
 
 namespace App\Filament\Resources\LaporanKeuanganResource\Pages;
 
-use App\Enums\JenisLaporanEnum;
 use App\Filament\Resources\LaporanKeuanganResource;
 use App\Models\LaporanKeuanganHistory;
 use BackedEnum;
 use Carbon\Carbon;
 use Filament\Actions\Action;
 use Filament\Forms\Form;
-use Filament\Notifications\Notification;
 use Filament\Resources\Pages\Page;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
@@ -66,21 +64,12 @@ class GenerateLaporanKeuangan extends Page
                 ->action(function (): void {
                     $this->validateForm();
                     $data = $this->form->getState();
-                    $params = $this->buildReportParams($data);
-
-                    if ($params['jenis'] === JenisLaporanEnum::Semua->value) {
-                        // TODO: dukung Print/PDF untuk jenis "Semua Jenis Laporan"
-                        Notification::make()
-                            ->title('Print / PDF untuk "Semua Jenis Laporan" belum didukung.')
-                            ->warning()
-                            ->send();
-
-                        return;
-                    }
 
                     $this->saveHistory($data, 'pdf');
 
-                    $url = route('laporan.keuangan.print', $params);
+                    // Parameter yang dikirim identik dengan action Excel, sehingga
+                    // isi halaman print sama dengan isi file .xlsx.
+                    $url = route('laporan.keuangan.print', $this->buildReportParams($data));
 
                     $this->js('window.open(' . json_encode($url) . ", '_blank')");
                 }),

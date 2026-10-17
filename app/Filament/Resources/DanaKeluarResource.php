@@ -244,9 +244,9 @@ class DanaKeluarResource extends BaseResource
                             }
                         })
                         ->visible(fn(Get $get) => self::isGajiTipe($get, KategoriGaji::GAJI_BULANAN->value, TipePekerja::HARIAN->value)),
-                    Placeholder::make('sisa_kas_bon_harian')
-                        ->label('Total Kas Bon Belum Lunas')
-                        ->content(fn(Get $get) => 'Rp ' . number_format((float) ($get('sisa_kas_bon') ?? 0), 0, ',', '.')),
+                    // Placeholder::make('sisa_kas_bon_harian')
+                    //     ->label('Total Kas Bon Belum Lunas')
+                    //     ->content(fn(Get $get) => 'Rp ' . number_format((float) ($get('sisa_kas_bon') ?? 0), 0, ',', '.')),
 
                     // Gaji Bulanan - Borongan
                     TextInput::make('nama_proyek')->label('Nama Proyek')
@@ -290,20 +290,22 @@ class DanaKeluarResource extends BaseResource
                     TextInput::make('item')->label('Nama Item / Biaya')->maxLength(255),
                     TextInput::make('qty')
                         ->label('Qty')
-                        ->numeric()->minValue(0)
+                        ->minValue(0)
+                        ->step(0.01)
+                        ->rule('regex:/^\d+(\.\d{1,2})?$/') 
                         ->live()
                         ->afterStateUpdated(fn(Get $get, Set $set) => $set('total',
-                            (float) ($get('qty') ?? 0) * (float) ($get('nominal') ?? 0)
+                            (int) ($get('qty') ?? 0) * (int) (preg_replace('/\D/', '', (string) $get('nominal') ?? 0) ?? 0)
                         )),
                     self::nominalField('nominal', true)
                         ->live(onBlur: true)
                         ->afterStateUpdated(fn(Get $get, Set $set) => $set('total',
-                            (float) ($get('qty') ?? 0) * (float) ($get('nominal') ?? 0)
+                            (float) ($get('qty') ?? 0) * (float) (preg_replace('/\D/', '', (string) $get('nominal') ?? 0) ?? 0)
                         )),
                     Placeholder::make('total_biaya')
                         ->label('Total (Qty × Nominal)')
                         ->content(fn(Get $get) => 'Rp ' . number_format(
-                            (float) ($get('qty') ?? 0) * (float) ($get('nominal') ?? 0), 0, ',', '.'
+                           (float) ($get('qty') ?? 0) * (float) (preg_replace('/\D/', '', (string) $get('nominal') ?? 0) ?? 0)
                         )),
                     Textarea::make('keterangan')->label('Keterangan')->rows(3),
                 ])
@@ -344,11 +346,11 @@ class DanaKeluarResource extends BaseResource
     {
         return TextInput::make($name)
             ->label(ucfirst(str_replace('_', ' ', $name)))
-            ->numeric()
+            ->visible($condition)
             ->prefix('Rp')
-            ->dehydrateStateUsing(fn($state): float => (float) preg_replace('/\D/', '', (string) ($state ?? 0)))
-            ->formatStateUsing(fn($state) => $state ? number_format((float) $state, 0, ',', '.') : null)
-            ->visible($condition);
+            ->mask(\Filament\Support\RawJs::make('$money($input, \',\', \'.\', 0)'))
+            ->formatStateUsing(fn ($state) => $state === null ? null : (string) (int) round((float) $state))
+            ->dehydrateStateUsing(fn ($state): int => (int) preg_replace('/\D/', '', (string) $state));
     }
 
     // ================================================================

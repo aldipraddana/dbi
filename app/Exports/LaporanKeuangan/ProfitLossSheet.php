@@ -114,7 +114,7 @@ class ProfitLossSheet extends BaseLaporanSheet
         $row += 2;
 
         // ------------------------------------------- PENDAPATAN / BEBAN LAIN
-        $this->writeSection($row, 'PENDAPATAN / BEBAN LAIN', self::KOLOM_PERSENTASE);
+        $this->writeSection($row, 'BEBAN LAIN', self::KOLOM_PERSENTASE);
         $row++;
 
         $bebanLain = $this->data->bebanLain();
@@ -123,7 +123,7 @@ class ProfitLossSheet extends BaseLaporanSheet
         $this->writePercent($row, $this->rasioKePendapatan(-$bebanLain));
         $row++;
 
-        $this->writeLabel($row, 'Total Pendapatan / Beban Lain', tebal: true);
+        $this->writeLabel($row, 'Total Beban Lain', tebal: true);
         $this->writeAmount($row, -$bebanLain, tebal: true);
         $this->writePercent($row, $this->rasioKePendapatan(-$bebanLain));
         $this->styleTotal($row, self::KOLOM_PERSENTASE);

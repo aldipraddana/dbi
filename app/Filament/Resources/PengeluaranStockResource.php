@@ -64,6 +64,13 @@ class PengeluaranStockResource extends Resource
                                         $detail->id => sprintf('%s | Tersedia: %s', $detail->nama_barang, $detail->getAvailableQty()),
                                     ]);
                             })
+                            ->getOptionLabelUsing(function ($value): ?string {
+                                $detail = PengadaanStockDetail::find($value);
+
+                                return $detail
+                                    ? sprintf('%s | Tersedia: %s', $detail->nama_barang, $detail->getAvailableQty())
+                                    : null;
+                            })
                             ->searchable()
                             ->preload(false)
                             ->required()
@@ -87,15 +94,33 @@ class PengeluaranStockResource extends Resource
                         TextInput::make('nama_barang')
                             ->label('Nama Barang')
                             ->disabled()
-                            ->dehydrated(false),
+                            ->dehydrated(false)
+                            ->afterStateHydrated(function ($state, callable $set, callable $get) {
+                                $detail = PengadaanStockDetail::find($get('pengadaan_stock_detail_id'));
+                                if ($detail) {
+                                    $set('nama_barang', $detail->nama_barang);
+                                }
+                            }),
                         TextInput::make('tipe')
                             ->label('Tipe')
                             ->disabled()
-                            ->dehydrated(false),
+                            ->dehydrated(false)
+                            ->afterStateHydrated(function ($state, callable $set, callable $get) {
+                                $detail = PengadaanStockDetail::find($get('pengadaan_stock_detail_id'));
+                                if ($detail) {
+                                    $set('tipe', $detail->tipe);
+                                }
+                            }),
                         TextInput::make('pm')
                             ->label('PM')
                             ->disabled()
-                            ->dehydrated(false),
+                            ->dehydrated(false)
+                            ->afterStateHydrated(function ($state, callable $set, callable $get) {
+                                $detail = PengadaanStockDetail::find($get('pengadaan_stock_detail_id'));
+                                if ($detail) {
+                                    $set('pm', $detail->pm);
+                                }
+                            }),
                         TextInput::make('qty')
                             ->label('Qty')
                             ->required()

@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
 use Livewire\Mechanisms\FrontendAssets\FrontendAssets;
 use Livewire\Mechanisms\HandleRequests\HandleRequests;
+use URL;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -44,5 +45,9 @@ class AppServiceProvider extends ServiceProvider
             Js::make('custom', asset('js/custom.js') . '?v=' . time()),
             Css::make('custom', asset('css/custom.css') . '?v=' . time()),
         ]);
+
+        // if (config('app.env') !== 'local' || request()->header('x-forwarded-proto') === 'https') {
+        //     URL::forceScheme('https');
+        // }
     }
 }

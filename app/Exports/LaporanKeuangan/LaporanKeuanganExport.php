@@ -6,10 +6,9 @@ namespace App\Exports\LaporanKeuangan;
 
 use App\Enums\JenisLaporanEnum;
 use App\Services\LaporanKeuangan\LaporanKeuanganDataService;
+use App\Services\LaporanKeuangan\LaporanSheetFactory;
 use Carbon\Carbon;
-use InvalidArgumentException;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
-use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
@@ -43,11 +42,17 @@ class LaporanKeuanganExport
 
         $service = new LaporanKeuanganDataService($this->mulai, $this->akhir);
 
-        foreach ($this->jenisDipilih() as $jenisLaporan) {
+        foreach (LaporanSheetFactory::jenisDipilih($this->jenis) as $jenisLaporan) {
             $worksheet = $this->spreadsheet->createSheet();
             $worksheet->setTitle($jenisLaporan->sheetName());
 
-            $this->makeSheet($jenisLaporan, $worksheet, $service)->render();
+            LaporanSheetFactory::buat(
+                $jenisLaporan,
+                new PhpSpreadsheetSheetWriter($worksheet),
+                $this->mulai,
+                $this->akhir,
+                $service,
+            )->render();
         }
 
         // sheet pertama (Neraca) menjadi sheet aktif saat file dibuka
@@ -93,33 +98,5 @@ class LaporanKeuanganExport
                 'Pragma' => 'public',
             ],
         );
-    }
-
-    /**
-     * @return array<int, JenisLaporanEnum>
-     */
-    private function jenisDipilih(): array
-    {
-        return $this->jenis === JenisLaporanEnum::Semua
-            ? JenisLaporanEnum::laporan()
-            : [$this->jenis];
-    }
-
-    private function makeSheet(
-        JenisLaporanEnum $jenis,
-        Worksheet $worksheet,
-        LaporanKeuanganDataService $service,
-    ): BaseLaporanSheet {
-        $mulai = $this->mulai;
-        $akhir = $this->akhir;
-
-        return match ($jenis) {
-            JenisLaporanEnum::Neraca => new NeracaSheet($worksheet, $mulai, $akhir, $service),
-            JenisLaporanEnum::ProfitLoss => new ProfitLossSheet($worksheet, $mulai, $akhir, $service),
-            JenisLaporanEnum::CashFlow => new CashFlowSheet($worksheet, $mulai, $akhir, $service),
-            JenisLaporanEnum::PerubahanEkuitas => new PerubahanEkuitasSheet($worksheet, $mulai, $akhir, $service),
-            JenisLaporanEnum::CatatanKeuangan => new CatatanKeuanganSheet($worksheet, $mulai, $akhir, $service),
-            default => throw new InvalidArgumentException("Jenis laporan [{$jenis->value}] tidak memiliki sheet."),
-        };
     }
 }

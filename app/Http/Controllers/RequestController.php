@@ -3,10 +3,13 @@
 namespace App\Http\Controllers;
 
 use App\Enums\JenisLaporanEnum;
+use App\Http\Requests\DownloadLaporanKeuanganRequest;
 use App\Models\Transactions;
 use App\Services\LaporanKeuangan\LaporanKeuanganService;
+use App\Services\LaporanKeuangan\LaporanSheetWriter;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\View\View;
 use PhpOffice\PhpSpreadsheet\Cell\DataType;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 
@@ -401,27 +404,37 @@ class RequestController extends Controller
         return response()->download($filename)->deleteFileAfterSend(true);  
     }
 
-    public function printLaporanKeuangan(Request $request)
+    /**
+     * Halaman print laporan keuangan: parameter, validasi, dan penyusunan laporan
+     * dipakai sama persis dengan download Excel (lihat LaporanKeuanganController).
+     */
+    public function printLaporanKeuangan(DownloadLaporanKeuanganRequest $request): View
     {
-        $validated = $request->validate([
-            'jenis' => 'required|string',
-            'tanggal_mulai' => 'required|date',
-            'tanggal_akhir' => 'required|date|after_or_equal:tanggal_mulai',
-        ]);
+        $validated = $request->validated();
 
-        $jenisLaporan = JenisLaporanEnum::tryFrom($validated['jenis']);
+        $jenis = JenisLaporanEnum::from((string) $validated['jenis']);
+        $mulai = Carbon::parse((string) $validated['tanggal_mulai']);
+        $akhir = Carbon::parse((string) $validated['tanggal_akhir']);
 
-        if (!$jenisLaporan) {
-            abort(400, 'Jenis laporan tidak valid');
+        $laporan = app(LaporanKeuanganService::class)->buildLaporan($jenis, $mulai, $akhir);
+
+        // Satu halaman hanya punya satu orientasi, jadi pakai landscape selama ada
+        // laporan yang di Excel disetel landscape; kalau semuanya portrait, portrait.
+        $orientasiHalaman = LaporanSheetWriter::ORIENTASI_PORTRAIT;
+
+        foreach ($laporan as $item) {
+            if ($item['orientasi'] === LaporanSheetWriter::ORIENTASI_LANDSCAPE) {
+                $orientasiHalaman = LaporanSheetWriter::ORIENTASI_LANDSCAPE;
+
+                break;
+            }
         }
 
-        $tanggalMulai = Carbon::parse($validated['tanggal_mulai']);
-        $tanggalAkhir = Carbon::parse($validated['tanggal_akhir']);
-
-        $service = app(LaporanKeuanganService::class);
-        $headerData = $service->getHeaderData($jenisLaporan, $tanggalMulai, $tanggalAkhir);
-
-        return view('laporan-keuangan.print', $headerData);
+        return view('laporan-keuangan.print', [
+            'laporan' => $laporan,
+            'orientasiHalaman' => $orientasiHalaman,
+            'params' => $validated,
+        ]);
     }
 
     public function import1()
