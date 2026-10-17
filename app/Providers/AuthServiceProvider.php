@@ -8,6 +8,7 @@ use App\Models\KategoriPengeluaran;
 use App\Models\Karyawan;
 use App\Models\Kendaraan;
 use App\Models\LaporanKeuanganHistory;
+use App\Models\MonitoringStock;
 use App\Models\Penerimaan;
 use App\Models\Pengeluaran;
 use App\Models\PengeluaranStock;
@@ -21,6 +22,7 @@ use App\Policies\KategoriPengeluaranPolicy;
 use App\Policies\KaryawanPolicy;
 use App\Policies\KendaraanPolicy;
 use App\Policies\LaporanKeuanganHistoryPolicy;
+use App\Policies\MonitoringStockPolicy;
 use App\Policies\PenerimaanPolicy;
 use App\Policies\PengeluaranPolicy;
 use App\Policies\PengeluaranStockPolicy;
@@ -46,6 +48,7 @@ class AuthServiceProvider extends ServiceProvider
         KategoriPengeluaran::class => KategoriPengeluaranPolicy::class,
         LaporanKeuanganHistory::class => LaporanKeuanganHistoryPolicy::class,
         PengeluaranStock::class => PengeluaranStockPolicy::class,
+        MonitoringStock::class => MonitoringStockPolicy::class,
         Client::class => ClientPolicy::class,
         DanaKeluar::class => DanaKeluarPolicy::class,
         Supplier::class => SupplierPolicy::class,

@@ -13,6 +13,7 @@ class UserMenuConstant
     public const MENU_DANA_KELUAR = "Dana Keluar";
     public const MENU_PENGADAAN_STOCK = "Pengadaan Stock";
     public const MENU_PENGELUARAN_STOCK = "Pengeluaran Stock";
+    public const MENU_MONITORING_STOCK = "Monitoring Stok";
 
     // Master Data
     public const MENU_CLIENT = "Client";
